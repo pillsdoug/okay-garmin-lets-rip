@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HM Training">
+<title>Half Marathon Training — Wilmington NC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #1a1d24;
+    --border: #252830;
+    --run: #ff6b35;
+    --cycle: #3d9eff;
+    --upper: #a855f7;
+    --lower: #ec4899;
+    --accent: #ff6b35;
+    --text: #e8eaed;
+    --muted: #6b7280;
+    --dim: #374151;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.08);
+    --green-border: rgba(34,197,94,0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-weight:300; overflow-x:hidden; }
+
+  /* HEADER */
+  .hdr { position:relative; padding: env(safe-area-inset-top, 20px) 20px 24px; border-bottom:1px solid var(--border); overflow:hidden; }
+  .hdr::before { content:''; position:absolute; top:-80px; right:-60px; width:300px; height:300px; background:radial-gradient(circle, rgba(255,107,53,0.13) 0%, transparent 70%); pointer-events:none; }
+  .hdr-inner { max-width:900px; margin:0 auto; }
+  .badge { display:inline-block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent); padding:3px 9px; margin-bottom:10px; opacity:.85; }
+  .hdr h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(38px,10vw,72px); line-height:.92; color:#fff; }
+  .hdr h1 span { color:var(--accent); }
+  .meta-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+  .pill { font-family:'DM Mono',monospace; font-size:10px; background:var(--surface2); border:1px solid var(--border); padding:5px 11px; letter-spacing:.06em; white-space:nowrap; }
+  .pill strong { color:var(--accent); }
+  .overall { display:flex; align-items:center; gap:10px; margin-top:14px; }
+  .overall-bar { width:140px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; flex-shrink:0; }
+  .overall-fill { height:100%; background:linear-gradient(90deg,var(--green),#4ade80); transition:width .4s; }
+  .overall-txt { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:.06em; }
+
+  /* TODAY CARD */
+  .today-section { max-width:900px; margin:16px auto 0; padding:0 20px; }
+  .today-card { background:var(--surface); border:1px solid var(--accent); padding:16px; margin-bottom:0; }
+  .today-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .today-title { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#fff; letter-spacing:.05em; }
+  .today-detail { font-size:13px; color:var(--muted); margin-top:4px; line-height:1.5; }
+  .today-detail strong { color:var(--text); }
+  .today-btn { margin-top:12px; width:100%; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; padding:10px; border-radius:3px; border:1px solid var(--green-border); background:var(--green-bg); color:var(--green); cursor:pointer; transition:all .15s; }
+  .today-btn:active { opacity:.7; }
+  .today-btn.done { background:rgba(34,197,94,0.15); border-color:var(--green); }
+
+  /* PHASE TABS */
+  .tabs-wrap { border-bottom:1px solid var(--border); margin-top:20px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .tabs-wrap::-webkit-scrollbar { display:none; }
+  .tabs { display:flex; max-width:900px; margin:0 auto; padding:0 20px; }
+  .tab { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; padding:10px 16px 11px; border:none; background:none; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .2s; }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  /* CONTENT */
+  .content { max-width:900px; margin:0 auto; padding:16px 20px 80px; }
+  .phase-sec { display:none; }
+  .phase-sec.active { display:block; }
+  .phase-hdr { padding:16px 18px; background:var(--surface); border-left:3px solid var(--accent); margin-bottom:12px; }
+  .phase-hdr h2 { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.05em; color:#fff; }
+  .phase-hdr p { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-top:3px; letter-spacing:.04em; }
+
+  /* WEEK CARDS */
+  .week-card { background:var(--surface); border:1px solid var(--border); margin-bottom:8px; overflow:hidden; transition:border-color .2s; }
+  .week-card.race-week { border-color:var(--accent); }
+  .week-hdr { display:flex; align-items:center; gap:10px; padding:11px 14px; background:var(--surface2); cursor:pointer; user-select:none; }
+  .race-week .week-hdr { background:rgba(255,107,53,0.07); }
+  .week-lbl { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.08em; color:var(--accent); flex-shrink:0; }
+  .week-dates { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:.06em; flex:1; }
+  .wprog { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .wprog-bar { width:44px; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .wprog-fill { height:100%; background:var(--green); transition:width .3s; }
+  .wprog-txt { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); }
+  .wtoggle { font-size:14px; color:var(--muted); transition:transform .2s; flex-shrink:0; font-family:'DM Mono',monospace; }
+  .week-card.open .wtoggle { transform:rotate(45deg); }
+
+  /* DAY ROWS — vertical stack on mobile */
+  .week-body { display:none; border-top:1px solid var(--border); }
+  .week-card.open .week-body { display:block; }
+  .day-row { display:flex; align-items:flex-start; gap:12px; padding:11px 14px; border-bottom:1px solid var(--border); transition:background .2s; }
+  .day-row:last-child { border-bottom:none; }
+  .day-row.is-today { background:rgba(255,107,53,0.04); }
+  .day-row.completed { background:var(--green-bg); }
+  .day-left { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; width:36px; }
+  .day-name { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .day-row.is-today .day-name { color:var(--accent); }
+  .day-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+  .day-mid { flex:1; min-width:0; }
+  .chips { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:5px; }
+  .chip { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:2px; }
+  .chip-run   { background:rgba(255,107,53,0.14); color:var(--run);   border:1px solid rgba(255,107,53,0.28); }
+  .chip-cycle { background:rgba(61,158,255,0.11); color:var(--cycle); border:1px solid rgba(61,158,255,0.23); }
+  .chip-upper { background:rgba(168,85,247,0.11); color:var(--upper); border:1px solid rgba(168,85,247,0.23); }
+  .chip-lower { background:rgba(236,72,153,0.11); color:var(--lower); border:1px solid rgba(236,72,153,0.23); }
+  .chip-rest  { background:rgba(55,65,81,0.28);   color:var(--muted); border:1px solid var(--border); }
+  .day-detail { font-size:12px; color:var(--muted); line-height:1.45; }
+  .day-detail strong { color:var(--text); font-weight:500; }
+  .day-row.completed .day-detail { opacity:.45; }
+  .day-right { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .done-mark { font-size:16px; display:none; }
+  .day-row.completed .done-mark { display:block; }
+  .mark-btn { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; border-radius:3px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .mark-btn:active { opacity:.6; }
+  .day-row:not(.completed) .mark-btn:hover { border-color:var(--green); color:var(--green); background:var(--green-bg); }
+  .day-row.completed .mark-btn { border-color:var(--green-border); color:var(--green); background:var(--green-bg); }
+
+  /* LOADING */
+  .loading { display:flex; align-items:center; justify-content:center; padding:40px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:.1em; gap:8px; }
+  .spin { width:14px; height:14px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* SYNC STATUS */
+  .sync-bar { position:fixed; bottom:0; left:0; right:0; padding:8px 20px env(safe-area-inset-bottom,8px); background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; gap:8px; font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:.08em; z-index:100; }
+  .sync-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
+  .sync-dot.syncing { background:var(--accent); animation:pulse .8s ease-in-out infinite; }
+  .sync-dot.error { background:#ef4444; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading"><div class="spin"></div>LOADING PLAN…</div>
+</div>
+
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncTxt">Loading…</span>
+</div>
+
+<script>
+// ─── PLAN DATA ────────────────────────────────────────────────────────────────
+const PLAN_START = new Date('2026-04-09'); // Thursday
+const TODAY = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+const STORAGE_KEY = 'hm_cloud_completions_v1';
+
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmt(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function sameDay(a,b) { return a.toDateString()===b.toDateString(); }
+function dayKey(wn,di) { return `w${wn}d${di}`; }
+
+// Week structure: Thu=0,Fri=1,Sat=2,Sun=3,Mon=4,Tue=5,Wed=6
+function makeDays(w) {
+  return [
+    { name:'Thu', types:['run'],         chips:['run'],               detail:`<strong>Tempo</strong><br>WU + ${w.tempo_dist} @ ${w.tempo_pace}/mi + CD` },
+    { name:'Fri', types:['cycle','lower'],chips:['cycle','lower'],    detail:`<strong>${w.fri_cycle} cycle</strong> + <strong>Lower body</strong>: ${w.lower}` },
+    { name:'Sat', types:['cycle'],        chips:['cycle'],            detail:`<strong>Long ride</strong><br>${w.sat_ride}, Zone 2` },
+    { name:'Sun', types:['run'],          chips:['run'],              detail:`<strong>Long run</strong><br>${w.long_run}` },
+    { name:'Mon', types:['rest'],         chips:['rest'],             detail:'Rest / easy walk' },
+    { name:'Tue', types:['run'],          chips:['run'],              detail:`<strong>Speed</strong><br>WU + ${w.intervals} + CD` },
+    { name:'Wed', types:['cycle','upper'],chips:['cycle','upper'],    detail:`<strong>${w.wed_cycle} cycle</strong> + <strong>Upper body</strong>: ${w.upper}` },
+  ];
+}
+
+const WEEKS = [];
+
+// PHASE 1
+[
+  { tempo_dist:'3 mi',   tempo_pace:'8:45', intervals:'6×400m @ 8:00/mi',     long_run:'6 mi easy ~9:30', sat_ride:'90 min easy',     fri_cycle:'45 min', wed_cycle:'45 min', upper:'Push/pull 3×10',         lower:'Squats, lunges, step-ups',           note:'Establish routine. All effort conversational.' },
+  { tempo_dist:'3.5 mi', tempo_pace:'8:40', intervals:'8×400m @ 7:55/mi',     long_run:'7 mi easy ~9:15', sat_ride:'90 min easy',     fri_cycle:'45 min', wed_cycle:'45 min', upper:'Push/pull 3×10',         lower:'Squats, lunges, step-ups',           note:'Focus on form. No hero efforts.' },
+  { tempo_dist:'4 mi',   tempo_pace:'8:35', intervals:'6×600m @ 8:00/mi',     long_run:'7 mi easy ~9:15', sat_ride:'100 min easy',    fri_cycle:'45 min', wed_cycle:'45 min', upper:'Push/pull 3×12',         lower:'Squats, RDLs, step-ups',             note:'Add volume slowly.' },
+  { tempo_dist:'4 mi',   tempo_pace:'8:30', intervals:'5×800m @ 8:00/mi',     long_run:'8 mi easy ~9:00', sat_ride:'100 min easy',    fri_cycle:'45 min', wed_cycle:'45 min', upper:'Push/pull 3×12',         lower:'Squats, lunges, calf raises',        note:'First 8-miler. Keep it chill.' },
+  { tempo_dist:'4.5 mi', tempo_pace:'8:20', intervals:'6×800m @ 7:50/mi',     long_run:'8 mi easy ~9:00', sat_ride:'90 min (deload)', fri_cycle:'40 min', wed_cycle:'40 min', upper:'Push/pull 3×10',         lower:'Bodyweight focus',                   note:'Deload week — pull back intensity.' },
+  { tempo_dist:'4.5 mi', tempo_pace:'8:15', intervals:'4×1K @ 7:45/mi',       long_run:'9 mi easy ~9:00', sat_ride:'105 min easy',    fri_cycle:'45 min', wed_cycle:'45 min', upper:'Pull-ups, rows, press',  lower:'Bulgarian splits, deadlifts',        note:'End of base. Pace starting to sharpen.' },
+].forEach((w,i) => WEEKS.push({ phase:0, weekNum:i+1, label:`Week ${i+1}`, start:addDays(PLAN_START,i*7), note:w.note, days:makeDays(w) }));
+
+// PHASE 2
+[
+  { tempo_dist:'5 mi',   tempo_pace:'8:10', intervals:'5×1K @ 7:30/mi',       long_run:'10 mi ~9:00',  sat_ride:'2 hr easy',      fri_cycle:'55 min', wed_cycle:'55 min', upper:'Pull-ups, rows, press 3×12', lower:'Bulgarian splits, deadlifts, calves', note:'Hit 10 miles for the first time.' },
+  { tempo_dist:'5 mi',   tempo_pace:'8:05', intervals:'4×1 mi @ 7:25/mi',     long_run:'10 mi ~8:50',  sat_ride:'2 hr easy',      fri_cycle:'55 min', wed_cycle:'55 min', upper:'Pull-ups, rows, press 3×12', lower:'Bulgarian splits, deadlifts, calves', note:'Start pushing tempo paces toward 8:00.' },
+  { tempo_dist:'5 mi',   tempo_pace:'8:00', intervals:'5×1K @ 7:20/mi',       long_run:'11 mi ~8:45',  sat_ride:'2.25 hr',        fri_cycle:'55 min', wed_cycle:'55 min', upper:'Weighted rows, press 3×12',  lower:'Bulgarian splits, RDLs',             note:'Long runs building. Legs should feel strong.' },
+  { tempo_dist:'5.5 mi', tempo_pace:'7:55', intervals:'4×1 mi @ 7:20/mi',     long_run:'11 mi ~8:45',  sat_ride:'2 hr (deload)',  fri_cycle:'45 min', wed_cycle:'45 min', upper:'Moderate, 3×10',             lower:'Bodyweight focus',                   note:'Deload — cut volume 20%. Recover fully.' },
+  { tempo_dist:'5.5 mi', tempo_pace:'7:50', intervals:'5×1 mi @ 7:15/mi',     long_run:'12 mi ~8:40',  sat_ride:'2.25 hr',        fri_cycle:'55 min', wed_cycle:'55 min', upper:'Weighted rows, press 3×12',  lower:'Bulgarian splits, RDLs, plyos',      note:'Back to work. Intervals getting real.' },
+  { tempo_dist:'6 mi',   tempo_pace:'7:45', intervals:'4×1.5 mi @ 7:15/mi',   long_run:'12 mi ~8:30',  sat_ride:'2.25 hr',        fri_cycle:'55 min', wed_cycle:'55 min', upper:'Weighted rows, press 3×12',  lower:'Bulgarian splits, RDLs, plyos',      note:'Mile repeats at sub-7:20 — significant!' },
+  { tempo_dist:'6 mi',   tempo_pace:'7:40', intervals:'5×1 mi @ 7:10/mi',     long_run:'12 mi ~8:20',  sat_ride:'2.5 hr',         fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10',     lower:'Bulgarian splits, RDLs, plyos',      note:'End of Phase 2. You are becoming a different runner.' },
+].forEach((w,i) => { const wn=i+7; WEEKS.push({ phase:1, weekNum:wn, label:`Week ${wn}`, start:addDays(PLAN_START,(wn-1)*7), note:w.note, days:makeDays(w) }); });
+
+// PHASE 3
+[
+  { tempo_dist:'6 mi',   tempo_pace:'7:30', intervals:'4×1 mi @ 6:55/mi',   long_run:'12 mi (last 3 @ 7:20)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Race pace miles begin. This is the key phase.' },
+  { tempo_dist:'6 mi',   tempo_pace:'7:25', intervals:'5×1 mi @ 6:55/mi',   long_run:'12 mi (last 3 @ 7:15)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Confidence building. Hit those goal-pace miles.' },
+  { tempo_dist:'6.5 mi', tempo_pace:'7:20', intervals:'4×1 mi @ 6:50/mi',   long_run:'13 mi (last 4 @ 7:10)', sat_ride:'2 hr (deload)', fri_cycle:'50 min', wed_cycle:'50 min', upper:'Moderate 3×10',          lower:'Bodyweight focus',               note:'Deload week — reduce volume 20%. Trust the process.' },
+  { tempo_dist:'6.5 mi', tempo_pace:'7:15', intervals:'5×1 mi @ 6:50/mi',   long_run:'12 mi (last 4 @ 7:10)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Back to intensity. Mile repeats sub-6:50!' },
+  { tempo_dist:'7 mi',   tempo_pace:'7:15', intervals:'4×1 mi @ 6:48/mi',   long_run:'13 mi (last 4 @ 7:05)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Peak volume approaching. Feel the fitness.' },
+  { tempo_dist:'7 mi',   tempo_pace:'7:10', intervals:'5×1 mi @ 6:45/mi',   long_run:'13 mi (last 5 @ 7:00)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Last 5 miles at goal pace — this is a confidence race.' },
+  { tempo_dist:'6 mi',   tempo_pace:'7:10', intervals:'4×1 mi @ 6:45/mi',   long_run:'12 mi (last 4 @ 7:00)', sat_ride:'2 hr (deload)', fri_cycle:'50 min', wed_cycle:'50 min', upper:'Moderate 3×10',          lower:'Bodyweight focus',               note:'Deload — body is adapting. Sleep more.' },
+  { tempo_dist:'7 mi',   tempo_pace:'7:05', intervals:'5×1 mi @ 6:45/mi',   long_run:'13 mi (last 5 @ 7:00)', sat_ride:'2.5 hr Z2',    fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'Near-peak week. You know 7:00/mi now.' },
+  { tempo_dist:'6 mi',   tempo_pace:'7:00', intervals:'4×1 mi @ 6:45/mi',   long_run:'12 mi (last 5 @ 7:00)', sat_ride:'2 hr easy',     fri_cycle:'60 min', wed_cycle:'60 min', upper:'Heavy rows, press 3×10', lower:'Bulgarian splits, RDLs, plyos', note:'PEAK WEEK. Last big long run. You are ready.' },
+].forEach((w,i) => { const wn=i+14; WEEKS.push({ phase:2, weekNum:wn, label:`Week ${wn}`, start:addDays(PLAN_START,(wn-1)*7), note:w.note, days:makeDays(w) }); });
+
+// PHASE 4
+[
+  { weekNum:23, isRace:false, days:[
+    { name:'Thu', types:['run'],  chips:['run'],  detail:'<strong>Tempo</strong><br>5 mi @ 7:10/mi' },
+    { name:'Fri', types:['cycle','lower'], chips:['cycle','lower'], detail:'<strong>45 min easy cycle</strong> + <strong>Lower body</strong>: Bodyweight, mobility' },
+    { name:'Sat', types:['cycle'], chips:['cycle'], detail:'<strong>Long ride</strong><br>1.75 hr Z2' },
+    { name:'Sun', types:['run'],  chips:['run'],  detail:'<strong>Long run</strong><br>11 mi easy' },
+    { name:'Mon', types:['rest'], chips:['rest'], detail:'Rest / easy walk' },
+    { name:'Tue', types:['run'],  chips:['run'],  detail:'<strong>Speed</strong><br>4×1 mi @ 6:50/mi' },
+    { name:'Wed', types:['cycle','upper'], chips:['cycle','upper'], detail:'<strong>45 min easy cycle</strong> + <strong>Upper body</strong>: Moderate, no new PRs' },
+  ], note:'Start of taper. Volume drops 15%.' },
+  { weekNum:24, isRace:false, days:[
+    { name:'Thu', types:['run'],  chips:['run'],  detail:'<strong>Tempo</strong><br>4 mi @ 7:10/mi' },
+    { name:'Fri', types:['cycle','lower'], chips:['cycle','lower'], detail:'<strong>45 min easy cycle</strong> + <strong>Lower body</strong>: Bodyweight, mobility' },
+    { name:'Sat', types:['cycle'], chips:['cycle'], detail:'<strong>Long ride</strong><br>1.5 hr easy' },
+    { name:'Sun', types:['run'],  chips:['run'],  detail:'<strong>Long run</strong><br>10 mi easy' },
+    { name:'Mon', types:['rest'], chips:['rest'], detail:'Rest / easy walk' },
+    { name:'Tue', types:['run'],  chips:['run'],  detail:'<strong>Speed</strong><br>3×1 mi @ 6:50/mi' },
+    { name:'Wed', types:['cycle','upper'], chips:['cycle','upper'], detail:'<strong>45 min easy cycle</strong> + <strong>Upper body</strong>: Moderate' },
+  ], note:'Keep sharpness but back off volume more.' },
+  { weekNum:25, isRace:false, days:[
+    { name:'Thu', types:['run'],  chips:['run'],  detail:'<strong>Tempo</strong><br>4 mi @ 7:05/mi' },
+    { name:'Fri', types:['cycle','lower'], chips:['cycle','lower'], detail:'<strong>40 min easy cycle</strong> + <strong>Lower body</strong>: Light, mobility focus' },
+    { name:'Sat', types:['cycle'], chips:['cycle'], detail:'<strong>Ride</strong><br>1.25 hr easy' },
+    { name:'Sun', types:['run'],  chips:['run'],  detail:'<strong>Long run</strong><br>8 mi (last 3 @ 7:00)' },
+    { name:'Mon', types:['rest'], chips:['rest'], detail:'Rest / easy walk' },
+    { name:'Tue', types:['run'],  chips:['run'],  detail:'<strong>Speed</strong><br>3×1 mi @ 6:50/mi' },
+    { name:'Wed', types:['cycle','upper'], chips:['cycle','upper'], detail:'<strong>40 min easy cycle</strong> + <strong>Upper body</strong>: Light' },
+  ], note:'Legs should feel springy. Trust it.' },
+  { weekNum:26, isRace:false, days:[
+    { name:'Thu', types:['run'],  chips:['run'],  detail:'<strong>Tempo</strong><br>3 mi easy strides' },
+    { name:'Fri', types:['cycle','lower'], chips:['cycle','lower'], detail:'<strong>35 min easy cycle</strong> + <strong>Lower body</strong>: Bodyweight only' },
+    { name:'Sat', types:['cycle'], chips:['cycle'], detail:'<strong>Ride</strong><br>1 hr very easy' },
+    { name:'Sun', types:['run'],  chips:['run'],  detail:'<strong>Long run</strong><br>6 mi easy' },
+    { name:'Mon', types:['rest'], chips:['rest'], detail:'Rest / easy walk' },
+    { name:'Tue', types:['run'],  chips:['run'],  detail:'<strong>Speed</strong><br>4×800m @ 6:50/mi' },
+    { name:'Wed', types:['cycle','upper'], chips:['cycle','upper'], detail:'<strong>35 min easy cycle</strong> + <strong>Upper body</strong>: Very light' },
+  ], note:'Race week minus 1. Just stay loose.' },
+  { weekNum:27, isRace:true, days:[
+    { name:'Thu', types:['run'],  chips:['run'],  detail:'<strong>Shakeout</strong><br>20 min easy + 4 strides' },
+    { name:'Fri', types:['rest'], chips:['rest'], detail:'Rest. Eat well. Hydrate.' },
+    { name:'Sat', types:['cycle'], chips:['cycle'], detail:'<strong>Optional</strong><br>30 min very easy spin or full rest' },
+    { name:'Sun', types:['run'],  chips:['run'],  detail:'<strong>🏁 RACE DAY</strong><br>Half Marathon · Wilmington NC<br><strong>Goal: 7:00/mi · 1:31:47</strong>' },
+    { name:'Mon', types:['rest'], chips:['rest'], detail:'Travel to Wilmington. Rest. Hydrate.' },
+    { name:'Tue', types:['run'],  chips:['run'],  detail:'<strong>Shakeout</strong><br>15 min easy + 4 strides' },
+    { name:'Wed', types:['rest'], chips:['rest'], detail:'Rest. Prep gear. Early bedtime.' },
+  ], note:'Race week. Strides only. Sleep. Eat well. Trust 27 weeks.' },
+].forEach(w => WEEKS.push({ phase:3, weekNum:w.weekNum, label:w.isRace?`Week ${w.weekNum} — RACE WEEK 🏁`:`Week ${w.weekNum}`, start:addDays(PLAN_START,(w.weekNum-1)*7), note:w.note, isRace:w.isRace, days:w.days }));
+
+// ─── STORAGE (localStorage) ───────────────────────────────────────────────────
+let completions = {};
+function loadLocal() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); } catch { return {}; } }
+function saveLocal(c) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } catch {} }
+
+// ─── SYNC STATUS ──────────────────────────────────────────────────────────────
+function setSync(state, msg) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncTxt');
+  dot.className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
+  txt.textContent = msg;
+}
+
+// ─── TODAY ────────────────────────────────────────────────────────────────────
+function findToday() {
+  for (const w of WEEKS) {
+    for (let di=0; di<w.days.length; di++) {
+      const date = addDays(w.start, di);
+      if (sameDay(date, TODAY)) return { week:w, di, day:w.days[di] };
+    }
+  }
+  return null;
+}
+
+// ─── CHIP COLORS ─────────────────────────────────────────────────────────────
+const chipClass = { run:'chip-run', cycle:'chip-cycle', upper:'chip-upper', lower:'chip-lower', rest:'chip-rest' };
+const chipLabel = { run:'Run', cycle:'Cycle', upper:'Upper Body', lower:'Lower Body', rest:'Rest' };
+const dotColor  = { run:'var(--run)', cycle:'var(--cycle)', upper:'var(--upper)', lower:'var(--lower)', rest:'var(--dim)' };
+
+function chipsHTML(chips) {
+  return chips.map(c => `<span class="chip ${chipClass[c]}">${chipLabel[c]}</span>`).join('');
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function totalDays() { return WEEKS.reduce((s,w)=>s+w.days.length,0); }
+function doneCount() { return Object.keys(completions).length; }
+
+function updateOverall() {
+  const total = totalDays(), done = doneCount();
+  const pct = total ? Math.round(done/total*100) : 0;
+  const f = document.getElementById('oFill'); if(f) f.style.width=pct+'%';
+  const t = document.getElementById('oTxt');  if(t) t.textContent=`${done} / ${total} days done`;
+}
+
+function updateWeekBar(wn) {
+  const w = WEEKS.find(x=>x.weekNum===wn); if(!w) return;
+  const done = w.days.filter((_,i)=>completions[dayKey(wn,i)]).length;
+  const pct  = Math.round(done/w.days.length*100);
+  const f = document.querySelector(`#wk${wn} .wprog-fill`); if(f) f.style.width=pct+'%';
+  const t = document.querySelector(`#wk${wn} .wprog-txt`);  if(t) t.textContent=`${done}/${w.days.length}`;
+}
+
+function updateDayRow(wn, di) {
+  const row = document.getElementById(`day-${wn}-${di}`); if(!row) return;
+  const done = !!completions[dayKey(wn,di)];
+  row.classList.toggle('completed', done);
+  const btn = row.querySelector('.mark-btn');
+  if(btn) btn.textContent = done ? '✓ Done' : 'Mark Done';
+  // update today card if applicable
+  const tc = document.getElementById('todayBtn');
+  const ti = findToday();
+  if(tc && ti && ti.week.weekNum===wn && ti.di===di) {
+    tc.textContent = done ? '✓ Completed — Great work!' : '○ Mark Today Complete';
+    tc.classList.toggle('done', done);
+  }
+}
+
+function toggleDay(wn, di) {
+  const k = dayKey(wn,di);
+  if (completions[k]) { delete completions[k]; } else { completions[k]=true; }
+  saveLocal(completions);
+  setSync('syncing','Saving…');
+  setTimeout(()=>setSync('ok',`Saved · ${doneCount()} days done`),400);
+  updateDayRow(wn,di);
+  updateWeekBar(wn);
+  updateOverall();
+}
+
+function renderApp() {
+  const todayInfo = findToday();
+  const phaseInfo = [
+    { title:'Phase 1: Base Building',         sub:'Weeks 1–6 · Apr 9 – May 20 · Aerobic foundation' },
+    { title:'Phase 2: Aerobic Development',   sub:'Weeks 7–13 · May 21 – Jul 1 · Volume & pace drop' },
+    { title:'Phase 3: Speed & Race-Specific', sub:'Weeks 14–22 · Jul 2 – Sep 2 · Goal-pace miles' },
+    { title:'Phase 4: Taper',                 sub:'Weeks 23–27 · Sep 3 – Oct 17 · Race sharp' },
+  ];
+
+  const totalDone = doneCount(), total = totalDays();
+  const overallPct = total ? Math.round(totalDone/total*100) : 0;
+
+  let html = `
+  <header class="hdr">
+    <div class="hdr-inner">
+      <div class="badge">🏁 Wilmington NC · Oct 17, 2026</div>
+      <h1>Half<br><span>Marathon</span><br>Plan</h1>
+      <div class="meta-row">
+        <div class="pill">Start <strong>Apr 9, 2026</strong></div>
+        <div class="pill">Current <strong>8:45/mi</strong></div>
+        <div class="pill">Goal <strong>7:00/mi</strong></div>
+        <div class="pill">Duration <strong>27 Weeks</strong></div>
+      </div>
+      <div class="overall">
+        <div class="overall-bar"><div class="overall-fill" id="oFill" style="width:${overallPct}%"></div></div>
+        <span class="overall-txt" id="oTxt">${totalDone} / ${total} days done</span>
+      </div>
+    </div>
+  </header>`;
+
+  // TODAY CARD
+  if (todayInfo) {
+    const { week, di, day } = todayInfo;
+    const done = !!completions[dayKey(week.weekNum, di)];
+    const mainChip = day.chips[0];
+    html += `
+  <div class="today-section">
+    <div class="today-card">
+      <div class="today-label">Today · ${fmt(TODAY)} · Week ${week.weekNum}</div>
+      <div class="today-title">${day.name} — ${chipLabel[mainChip]}</div>
+      <div class="today-detail">${day.detail}</div>
+      <button class="today-btn${done?' done':''}" id="todayBtn" onclick="toggleDay(${week.weekNum},${di})">
+        ${done ? '✓ Completed — Great work!' : '○ Mark Today Complete'}
+      </button>
+    </div>
+  </div>`;
+  }
+
+  // TABS
+  html += `
+  <div class="tabs-wrap">
+    <div class="tabs">
+      ${phaseInfo.map((p,i)=>`<button class="tab${i===0?' active':''}" id="tab${i}" onclick="showPhase(${i})">${['Base','Aerobic','Speed','Taper'][i]}</button>`).join('')}
+    </div>
+  </div>
+  <div class="content">`;
+
+  // PHASES
+  for(let pi=0; pi<4; pi++) {
+    const pw = WEEKS.filter(w=>w.phase===pi);
+    html += `<div class="phase-sec${pi===0?' active':''}" id="ps${pi}">
+      <div class="phase-hdr"><h2>${phaseInfo[pi].title}</h2><p>${phaseInfo[pi].sub}</p></div>`;
+
+    for(const week of pw) {
+      const wDone = week.days.filter((_,i)=>completions[dayKey(week.weekNum,i)]).length;
+      const wPct  = Math.round(wDone/week.days.length*100);
+      const isCurrentWeek = sameDay(week.start, TODAY) || (TODAY >= week.start && TODAY <= addDays(week.start,6));
+
+      html += `
+      <div class="week-card${week.isRace?' race-week':''}${isCurrentWeek?' open':''}" id="wk${week.weekNum}">
+        <div class="week-hdr" onclick="toggleWeek(${week.weekNum})">
+          <span class="week-lbl">${week.label}</span>
+          <span class="week-dates">${fmt(week.start)} – ${fmt(addDays(week.start,6))}</span>
+          <div class="wprog">
+            <div class="wprog-bar"><div class="wprog-fill" style="width:${wPct}%"></div></div>
+            <span class="wprog-txt">${wDone}/${week.days.length}</span>
+          </div>
+          <span class="wtoggle">+</span>
+        </div>
+        <div class="week-body">`;
+
+      for(let di=0; di<week.days.length; di++) {
+        const day = week.days[di];
+        const date = addDays(week.start, di);
+        const isToday = sameDay(date, TODAY);
+        const done = !!completions[dayKey(week.weekNum, di)];
+        const mainColor = dotColor[day.chips[0]] || 'var(--dim)';
+
+        html += `
+          <div class="day-row${isToday?' is-today':''}${done?' completed':''}" id="day-${week.weekNum}-${di}">
+            <div class="day-left">
+              <div class="day-name">${day.name}</div>
+              <div class="day-dot" style="background:${mainColor}"></div>
+            </div>
+            <div class="day-mid">
+              <div class="chips">${chipsHTML(day.chips)}</div>
+              <div class="day-detail">${day.detail}</div>
+            </div>
+            <div class="day-right">
+              <div class="done-mark">✅</div>
+              <button class="mark-btn" onclick="toggleDay(${week.weekNum},${di})">${done?'✓ Done':'Mark Done'}</button>
+            </div>
+          </div>`;
+      }
+
+      html += `</div></div>`; // week-body, week-card
+    }
+    html += `</div>`; // phase-sec
+  }
+
+  html += `</div>`; // content
+  document.getElementById('app').innerHTML = html;
+  setSync('ok', `Saved · ${doneCount()} days done`);
+
+  // Auto-scroll to current week
+  setTimeout(() => {
+    const todayInfo = findToday();
+    if (todayInfo) {
+      const el = document.getElementById(`wk${todayInfo.week.weekNum}`);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  }, 300);
+}
+
+function toggleWeek(wn) {
+  const card = document.getElementById(`wk${wn}`);
+  if (card) card.classList.toggle('open');
+}
+
+function showPhase(idx) {
+  for(let i=0;i<4;i++) {
+    document.getElementById(`ps${i}`)?.classList.toggle('active', i===idx);
+    document.getElementById(`tab${i}`)?.classList.toggle('active', i===idx);
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+completions = loadLocal();
+renderApp();
+</script>
+</body>
+</html>
